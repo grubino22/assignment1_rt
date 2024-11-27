@@ -35,17 +35,18 @@ def control_distance():
 	while not rospy.is_shutdown():
 		
 		distance = compute_distance()
+		#logger.info(f"Distance: {distance}")
 		if distance < treshold:
-			print("The turtles are too close!")
+			rospy.loginfo("The turtles are too close!")
 			turtle1_pub.publish(Twist())
 			turtle2_pub.publish(Twist())
 			
 		if (turtle1_pose.x <= low_boundary or turtle1_pose.y <= low_boundary or turtle1_pose.x >= high_boundary or turtle1_pose.y >= high_boundary):
-			print("turtle1 is too close to the boundary, it's being stopped")
+			rospy.loginfo("turtle1 is too close to the boundary, it's being stopped")
 			turtle1_pub.publish(Twist())
 			
 		if (turtle2_pose.x <= low_boundary or turtle2_pose.y <= low_boundary or turtle2_pose.x >= high_boundary or turtle2_pose.y >= high_boundary):
-			print("turtle2 is too close to the boundary, it's being stopped")
+			rospy.loginfo("turtle2 is too close to the boundary, it's being stopped")
 			turtle2_pub.publish(Twist())
 		
 		

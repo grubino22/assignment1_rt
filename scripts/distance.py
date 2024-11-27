@@ -3,6 +3,7 @@ import rospy
 from turtlesim.msg import Pose
 from geometry_msgs.msg import Twist
 import math
+from std_msgs.msg import Float32
 
 treshold = 1.0;
 high_boundary = 10;
@@ -21,13 +22,13 @@ def compute_distance():
 
 def control_distance():
 	
-	global turtle1_pub
 	turtle1_pub = rospy.Publisher('/turtle1/cmd_vel', Twist, queue_size=10)
-	global turtle2_pub
 	turtle2_pub = rospy.Publisher('/turtle2/cmd_vel', Twist, queue_size=10)
 	
 	rospy.Subscriber('/turtle1/pose', Pose, turtle1Callback)
 	rospy.Subscriber('/turtle2/pose', Pose, turtle2Callback)
+	
+	distance_pub = rospy.Publisher('/turtles_distance', Float32, queue_size=10)
 	
 	rospy.init_node('distance_control', anonymous=True)
 	rate = rospy.Rate(100)	
@@ -35,7 +36,7 @@ def control_distance():
 	while not rospy.is_shutdown():
 		
 		distance = compute_distance()
-		#logger.info(f"Distance: {distance}")
+		distance_pub.publish(distance)
 		if distance < treshold:
 			rospy.loginfo("The turtles are too close!")
 			turtle1_pub.publish(Twist())

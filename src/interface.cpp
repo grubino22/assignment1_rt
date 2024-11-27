@@ -32,24 +32,39 @@ int main (int argc, char **argv) {
 	double lin_vel;
 	double ang_vel;
 	
-	ros::Rate loop_rate(100);
-	
 	while(ros::ok()) {
 		
-		//choose the turtle to control between turtle1 or turtle2
+		std::cout << "Choose the turtle to control (turtle1 or turtle2): ";
 		std::cin >> control_name;
-		//check if control_name is valid
+		if(control_name!="turtle1" && control_name!="turtle2"){
+			std::cout << "Turtle name not valid. Enter 'turtle1' or 'turtle2'." << std::endl;
+			continue;
+		}
 		
-		//choose the linear velocity
+		std::cout << "Choose the linear velocity: ";
 		std::cin >> lin_vel;
 		
-		//choose the angular velocity
+		std::cout << "Choose the angular velocity: ";
 		std::cin >> ang_vel;
 		
 		geometry_msgs::Twist input_vel;
 		input_vel.linear.x = lin_vel;
 		input_vel.angular.z = ang_vel;
 		
+		ros::Rate loop_rate(100);
+		
+		// Move the turtle for 1 second
+		for(int i=0; i<100; ++i) {
+			if (control_name == "turtle1") {turtle1_pub.publish(input_vel);}
+			else if (control_name == "turtle2") {turtle2_pub.publish(input_vel);}
+			
+			ros::spinOnce();
+			loop_rate.sleep();
+		}
+		
+		// Stop the turtle
+		input_vel.linear.x = 0.0;
+		input_vel.angular.z = 0.0;
 		if (control_name == "turtle1") {turtle1_pub.publish(input_vel);}
 		else if (control_name == "turtle2") {turtle2_pub.publish(input_vel);}
 		

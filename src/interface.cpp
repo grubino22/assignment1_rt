@@ -3,9 +3,12 @@
 #include "turtlesim/Spawn.h"
 #include "geometry_msgs/Twist.h"
 #include <string>
+#include "std_msgs/Bool.h"
 
-void Callback(const turtlesim::Pose::ConstPtr& msg) {
+bool movement_allowed = true;
 
+void Callback(const std_msgs::Bool::ConstPtr& msg) {
+	movement_allowed = msg->data;
 }
 
 int main (int argc, char **argv) {
@@ -17,8 +20,7 @@ int main (int argc, char **argv) {
 	ros::Publisher turtle1_pub = n.advertise<geometry_msgs::Twist>("/turtle1/cmd_vel", 100);
 	ros::Publisher turtle2_pub = n.advertise<geometry_msgs::Twist>("/turtle2/cmd_vel", 100);
 	
-	ros::Subscriber turtle1_sub = n.subscribe("/turtle1/pose", 100, Callback);
-	ros::Subscriber turtle2_sub = n.subscribe("/turtle2/pose", 100, Callback);
+	ros::Subscriber movement_flag_sub = n.subscribe("/movement_allowed", 100, Callback);
 	
 	ros::ServiceClient client1 = n.serviceClient<turtlesim::Spawn>("/spawn");
 	turtlesim::Spawn spawn1;
@@ -33,7 +35,7 @@ int main (int argc, char **argv) {
 	double ang_vel;
 	
 	while(ros::ok()) {
-		
+			
 		std::cout << "Choose the turtle to control (turtle1 or turtle2): ";
 		std::cin >> control_name;
 		if(control_name!="turtle1" && control_name!="turtle2"){
@@ -55,6 +57,21 @@ int main (int argc, char **argv) {
 		
 		// Move the turtle for 1 second
 		for(int i=0; i<100; ++i) {
+			
+			if (!movement_allowed) {
+				ROS_INFO("Movement not allowed.");
+				while (!movement_allowed) {
+			    		input_vel.linear.x = -lin_vel;
+					input_vel.angular.z = -ang_vel;
+					if (control_name == "turtle1") {turtle1_pub.publish(input_vel);}
+					else if (control_name == "turtle2") {turtle2_pub.publish(input_vel);}
+					ros::spinOnce();
+					loop_rate.sleep();
+	      			}
+	      			movement_allowed = true;
+	      			break;
+			}
+			
 			if (control_name == "turtle1") {turtle1_pub.publish(input_vel);}
 			else if (control_name == "turtle2") {turtle2_pub.publish(input_vel);}
 			

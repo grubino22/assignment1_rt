@@ -11,6 +11,13 @@ void Callback(const std_msgs::Bool::ConstPtr& msg) {
 	movement_allowed = msg->data;
 }
 
+void publishVelocity(ros::Publisher& pub, double lin_vel, double ang_vel) {
+	geometry_msgs::Twist vel;
+	vel.linear.x = lin_vel;
+	vel.angular.z = ang_vel;
+	pub.publish(vel);
+}
+
 int main (int argc, char **argv) {
 	
 	ros::init(argc, argv, "UI");
@@ -49,9 +56,7 @@ int main (int argc, char **argv) {
 		std::cout << "Choose the angular velocity: ";
 		std::cin >> ang_vel;
 		
-		geometry_msgs::Twist input_vel;
-		input_vel.linear.x = lin_vel;
-		input_vel.angular.z = ang_vel;
+		ros::Publisher& selected_pub = (control_name == "turtle1") ? turtle1_pub : turtle2_pub;
 		
 		ros::Rate loop_rate(100);
 		
@@ -59,32 +64,25 @@ int main (int argc, char **argv) {
 		for(int i=0; i<100; ++i) {
 			
 			if (!movement_allowed) {
-				ROS_INFO("Movement not allowed.");
+				ROS_INFO("Movement stopped early.");
+				double reverse_l = ((lin_vel > 0) - (lin_vel < 0))*-0.5;
+				double reverse_a = ((ang_vel > 0) - (ang_vel < 0))*-0.5;
 				while (!movement_allowed) {
-			    		input_vel.linear.x = -lin_vel;
-					input_vel.angular.z = -ang_vel;
-					if (control_name == "turtle1") {turtle1_pub.publish(input_vel);}
-					else if (control_name == "turtle2") {turtle2_pub.publish(input_vel);}
+					publishVelocity(selected_pub, reverse_l, reverse_a);
 					ros::spinOnce();
 					loop_rate.sleep();
 	      			}
-	      			movement_allowed = true;
 	      			break;
 			}
 			
-			if (control_name == "turtle1") {turtle1_pub.publish(input_vel);}
-			else if (control_name == "turtle2") {turtle2_pub.publish(input_vel);}
+			publishVelocity(selected_pub, lin_vel, ang_vel);
 			
 			ros::spinOnce();
 			loop_rate.sleep();
 		}
 		
 		// Stop the turtle
-		input_vel.linear.x = 0.0;
-		input_vel.angular.z = 0.0;
-		if (control_name == "turtle1") {turtle1_pub.publish(input_vel);}
-		else if (control_name == "turtle2") {turtle2_pub.publish(input_vel);}
-		
+		publishVelocity(selected_pub, 0.0, 0.0);
 		
 		ros::spinOnce();
 		loop_rate.sleep();

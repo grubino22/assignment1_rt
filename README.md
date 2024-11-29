@@ -27,16 +27,22 @@ To start, clone this repository into your ROS workspace:
 cd ~/catkin_ws/src
 git clone https://github.com/grubino22/assignment1_rt
 ```
+
 Build the workspace:
 ```bash
 cd ~/catkin_ws
 catkin_make
 ```
+
 After building, ensure your workspace is properly sourced by adding the following line to your `.bashrc` file:
 ```bash
 source ~/catkin_ws/devel/setup.bash
 ```
-Then close the terminal and open a new one.
+
+Then close the terminal, open a new one and run the command:
+```bash
+roscore
+```
 
 Launch the Turtlesim node with:
 ```bash

@@ -49,7 +49,7 @@ def control_distance():
 			
 		if not turtle1_ready or not turtle2_ready:
 			rospy.loginfo("One or both turtles are not spawned!")
-			rate.sleep()
+			rospy.sleep(1)
 			continue
 		
 		distance = compute_distance()

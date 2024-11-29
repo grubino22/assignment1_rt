@@ -34,7 +34,7 @@ catkin_make
 ```
 After building, ensure your workspace is properly sourced by adding the following line to your `.bashrc` file:
 ```bash
-source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
+source ~/catkin_ws/devel/setup.bash
 ```
 Then close the terminal and open a new one.
 

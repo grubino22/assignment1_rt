@@ -32,6 +32,11 @@ Build the workspace:
 cd ~/catkin_ws
 catkin_make
 ```
+After building, ensure your workspace is properly sourced by adding the following line to your `.bashrc` file:
+```bash
+source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
+```
+Then close the terminal and open a new one.
 
 Launch the Turtlesim node with:
 ```bash
